@@ -1,44 +1,13 @@
-var products = [
-  {
-    id: 1,
-    name: "Computador M1-TX",
-    description: "Intel I7, 16GB, SSD 256, HD 1T",
-    price: 4900,
-    category: 1,
-    promotion: true,
-    new: true
-  },
-  {
-    id: 2,
-    name: "Computador M2-TX",
-    description: "Intel I7, 32GB, SSD 512, HD 1T",
-    price: 5900,
-    category: 2,
-    promotion: false,
-    new: true
-  },
-  {
-    id: 3,
-    name: "Computador M1-T",
-    description: "Intel I5, 16GB, HD 1T",
-    price: 2900,
-    category: 3,
-    promotion: false,
-    new: false
-  },
-];
+$('#inputPrice3').mask('000.000.000.000.000,00', { reverse: true });
 
-var categories = [
-  { id: 1, name: "Produção Própria" },
-  { id: 2, name: "Nacional" },
-  { id: 3, name: "Importado" }
-];
+var categories = [];
+
 function convertToNumber(string) {
   return string.replace(/\./g, '').replace(',', '.')
 }
-function addNewRow(prodct) {
+async function addNewRow(prodct) {
   let table = document.getElementById('table')
-  let {name} = categories[prodct.category-1]
+  let {name} = categories[prodct.idCategory-1]
   table.innerHTML += `
     <tr>
       <th scope="row">${prodct.id}</th>
@@ -48,17 +17,24 @@ function addNewRow(prodct) {
       <td>${name}</td>
       <td class="d-none d-md-table-cell">
         ${prodct.promotion? `<span class="badge text-bg-success me-1">P</span>` : ``}
-        ${prodct.new? `<span class="badge text-bg-primary">L</span>`: ``}
+        ${prodct.newProduct? `<span class="badge text-bg-primary">L</span>`: ``}
       </td>
     </tr>
   `
 }
 
-loadProducts()
 
-function loadProducts() {
-  products.map((product) => addNewRow(product))
+async function loadProducts() {
+  const {data} = await axios.get('http://localhost:8080/products')
+  await loadtCategories()
+  data.map((p) => addNewRow(p))
 }
+async function loadtCategories(){
+  const {data} = await axios.get(`http://localhost:8080/categories`)
+  categories= data
+  categories.map((cat) => document.getElementById('inputClass3').innerHTML += `<option value=${cat.id}>${cat.name}</option>`)
+}
+loadProducts()
 
 document.getElementById('formRegister').addEventListener('submit', function(event) {
   event.preventDefault()
