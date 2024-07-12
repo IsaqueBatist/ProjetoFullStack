@@ -1,6 +1,6 @@
 $('#inputPrice3').mask('000.000.000.000.000,00', { reverse: true });
 
-var categories = [];
+let categories = [];
 
 function convertToNumber(string) {
   return string.replace(/\./g, '').replace(',', '.')
@@ -25,6 +25,7 @@ async function addNewRow(prodct) {
 
 
 async function loadProducts() {
+  document.getElementById('table').innerHTML = ''
   const {data} = await axios.get('http://localhost:8080/products')
   await loadtCategories()
   data.map((p) => addNewRow(p))
@@ -34,23 +35,23 @@ async function loadtCategories(){
   categories= data
   categories.map((cat) => document.getElementById('inputClass3').innerHTML += `<option value=${cat.id}>${cat.name}</option>`)
 }
+async function postProduct(data){
+  await axios.post("http://localhost:8080/products", data)
+}
 loadProducts()
 
 document.getElementById('formRegister').addEventListener('submit', function(event) {
   event.preventDefault()
-  console.log(document.getElementById('checkboxNewProduct').checked)
-  console.log(document.getElementById('checkboxPromotion').checked)
   let newProduct = {
-    id: products.length+1,
     name: document.getElementById('inputName3').value,
     description: document.getElementById('inputDescription3').value,
     price: convertToNumber(document.getElementById('inputPrice3').value),
-    category: document.getElementById("inputClass3").value,
+    idCategory: document.getElementById("inputClass3").value,
     promotion: document.getElementById('checkboxPromotion').checked,
-    new: document.getElementById('checkboxNewProduct').checked,
+    newProduct: document.getElementById('checkboxNewProduct').checked,
   }
-  addNewRow(newProduct)
-  products.push(newProduct)
+  postProduct(newProduct)
+  loadProducts()
   document.getElementById('formRegister').reset()
 })
 
